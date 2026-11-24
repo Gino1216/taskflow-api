@@ -66,33 +66,3 @@ curl -H "Authorization: Bearer <TOKEN>" "http://localhost:8080/api/tasks?status=
 mvn test
 ```
 
-## Trao đổi khi phỏng vấn
-
-### Vì sao API không trả trực tiếp JPA entity?
-
-API sử dụng DTO để không làm lộ cấu trúc bảng, tránh vòng lặp khi tuần tự hóa quan hệ JPA và cho phép thay đổi database mà ít ảnh hưởng đến hợp đồng API. Bean Validation cũng được đặt trên request DTO để kiểm tra dữ liệu ngay tại biên hệ thống.
-
-### Làm thế nào để người dùng chỉ truy cập được công việc của mình?
-
-JWT cung cấp email của người dùng đã xác thực. Tầng service tìm task bằng cả `taskId` và `ownerId`, thay vì chỉ kiểm tra quyền tại controller. Vì vậy một người dùng không thể đọc, sửa hoặc xóa task của người khác bằng cách thay ID trên URL.
-
-### Mật khẩu và JWT được bảo vệ như thế nào?
-
-Mật khẩu được băm một chiều bằng BCrypt và không bao giờ được trả về API. JWT được ký bằng HMAC-SHA256, có thời hạn hai giờ và được kiểm tra ở mọi endpoint cần xác thực. Khi triển khai thật, khóa ký được truyền qua biến môi trường `APP_JWT_SECRET`.
-
-### Vì sao service dùng `@Transactional`?
-
-Các thao tác ghi được thực hiện trong một transaction để thay đổi dữ liệu có tính nguyên tử. Các truy vấn chỉ đọc dùng `@Transactional(readOnly = true)` nhằm thể hiện rõ ý định và cho phép JPA tối ưu phù hợp.
-
-### Nếu phát triển tiếp, dự án nên bổ sung gì?
-
-- Flyway hoặc Liquibase để quản lý phiên bản schema thay cho `ddl-auto=update`.
-- Refresh token, thu hồi token và giới hạn số lần đăng nhập sai.
-- Testcontainers để kiểm thử tích hợp trực tiếp với PostgreSQL.
-- OpenAPI/Swagger, logging có cấu trúc và metrics phục vụ vận hành.
-
-## Mô tả ngắn để đưa vào CV
-
-**TaskFlow - Personal Task Management API**  
-Xây dựng REST API quản lý công việc bằng Java 21, Spring Boot, Spring Security, JWT và PostgreSQL. Thiết kế phân quyền dữ liệu theo người dùng, validation, phân trang, xử lý ngoại lệ tập trung và kiểm thử tích hợp với JUnit/MockMvc. Đóng gói cơ sở dữ liệu bằng Docker Compose.
-
