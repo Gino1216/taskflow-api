@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: taskflow-api
+  datasource:
+    url: jdbc:h2:mem:taskflow;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+
+app:
+  jwt:
+    issuer: taskflow-api
+    # Development-only key. Override APP_JWT_SECRET outside local development.
+    secret: ${APP_JWT_SECRET:change-this-development-key-32chars}
+    ttl: 2h
+
+server:
+  error:
+    include-message: never
+
+---
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/taskflow}
+    username: ${DB_USERNAME:taskflow}
+    password: ${DB_PASSWORD:taskflow}
+  jpa:
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: false
